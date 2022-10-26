@@ -126,8 +126,6 @@ class xcylobj(object):
 		return to_sql
 
 
-https://www.geeksforgeeks.org/inner-class-in-python/
-
 class sqlobj(object):
 	"""
 	Sample usage:
