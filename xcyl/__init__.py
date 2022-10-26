@@ -197,6 +197,23 @@ class sqlobj(object):
 
 		return tables
 
+	def load_table(self, table_name):
+		just_enter = False
+		if self.exists is None:
+			just_enter = True
+			self.just_enter()
+
+		output = pd.DataFrame()
+		if just_enter:
+			output = pd.read_sql_query("SELECT * FROM {0}".format(table_name), self.connection)
+		else:
+			output = self.dataframes[table_name]
+
+		if just_enter:
+			self.exit()
+
+		return output
+
 	def addr(self, sheet_name, dataframe):
 		while sheet_name in list(self.cur_data_sets.keys()):
 			sheet_name += "_"
@@ -225,23 +242,76 @@ class sqlobj(object):
 		return self
 
 	def keys(self):
-		return self.dataframes.keys()
+		just_enter = False
+		if self.exists is None:
+			just_enter = True
+			self.just_enter()
+
+		tables = []
+		if just_enter:
+			current_cursor = self.connection.cursor()
+			current_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+
+			for name in current_cursor.fetchall():
+				tables += [name[0]]
+
+			current_cursor = None
+		else:
+			tables = self.dataframes.keys()
+
+		if just_enter:
+			self.exit()
+
+		return tables
 
 	def values(self):
-		return self.dataframes.values()
+		just_enter = False
+		if self.exists is None:
+			just_enter = True
+			self.just_enter()
+		
+		tables = []
+		if just_enter:
+			current_cursor = self.connection.cursor()
+			current_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+			for name in current_cursor.fetchall():
+				tables  += [pd.read_sql_query("SELECT * FROM {0}".format(name[0]), self.connection)]
+			current_cursor = None
+		else:
+			tables = self.dataframes.values()
+
+
+		if just_enter:
+			self.exit()
+
+		return tables
 
 	def items(self):
-		return self.dataframes.items()
+		just_enter = False
+		if self.exists is None:
+			just_enter = True
+			self.just_enter()
+
+		tables = {}
+		if just_enter:
+			current_cursor = self.connection.cursor()
+			current_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+			for name in current_cursor.fetchall():
+				tables[name[0]] =  [pd.read_sql_query("SELECT * FROM {0}".format(name[0]), self.connection)]
+			current_cursor = None
+		else:
+			tables = self.dataframes.values()
+
+		if just_enter:
+			self.exit()
+
+		return self.dataframes
 
 	def __getitem__(self, item):
-		return self.dataframes[item]
+		return self.items[item]
 
 	def __setitem__(self, key, value):
 		self.add_frame(key, value)
-
-	def __delitem__(self, key):
-		if key in self.keys():
-			del self.dataframes[key]
 
 	def to_xcylobj(self):
 		output = xcylobj("temp.xlsx")
