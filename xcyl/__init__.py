@@ -308,7 +308,7 @@ class sqlobj(object):
 		return self.dataframes
 
 	def __getitem__(self, item):
-		return self.items[item]
+		return self.items()[item]
 
 	def __setitem__(self, key, value):
 		self.add_frame(key, value)
