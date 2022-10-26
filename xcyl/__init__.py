@@ -215,9 +215,8 @@ class sqlobj(object):
 		return output
 
 	def addr(self, sheet_name, dataframe):
-		while sheet_name in list(self.cur_data_sets.keys()):
+		while sheet_name in list(self.keys()):
 			sheet_name += "_"
-		self.dataframes[sheet_name] = dataframe
 
 		just_enter = False
 		if self.exists is None:
