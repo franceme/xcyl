@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 # region Basic Information
 here = os.path.abspath(os.path.dirname(__file__))
 py_version = sys.version_info[:2]
-NAME = "carchive"
+NAME = "xcyl"
 AUTHOR = 'Miles Frantz'
 EMAIL = 'frantzme@vt.edu'
 DESCRIPTION = 'My short description for my project.'
@@ -20,7 +20,7 @@ long_description = pathlib.Path(f"{here}/README.md").read_text(encoding='utf-8')
 REQUIRES_PYTHON = '>=3.8.0'
 RELEASE = "?"
 entry_point = f"src.{NAME}"
-VERSION = "0.0.26"
+VERSION = "0.0.0"
 
 def zip_program(outputName:str = f"{NAME}.zip"):
 	#http://blog.ablepear.com/2012/10/bundling-python-files-into-stand-alone.html
@@ -105,9 +105,9 @@ setup(
 	entry_points={
 	},
 	install_requires=[
-		"funbelts",
-		"waybackpy",
-		"ghapi",
+		"pandas",
+		"openpyxl",
+		"sqlite3",
 	],
 	include_package_data=True,
 	classifiers=[
