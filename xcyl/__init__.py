@@ -133,17 +133,21 @@ class sqlobj(object):
 	with SqliteConnect("dataset.sqlite") as sql:
 		container = pd.read_sql(sql.table_name, sql.connection_string)
 	...
+	with SqliteConnect("dataset.sqlite", threadLock=<x>) as sql:
+		container = pd.read_sql(sql.table_name, sql.connection_string)
+	...
 	with SqliteConnect("dataset.sqlite") as sql:
 		container.to_sql(sql.table_name, sql.connection, if_exists='replace')
 	```
 	"""
 
-	def __init__(self, file_name: str, echo: bool = False):
+	def __init__(self, file_name: str, echo: bool = False, threadLock = None):
 		self.file_name = file_name
 		self.table_name = "dataset"
 		self.echo = echo
 		self.dataframes = {}
 		self.exists = None
+		self.lock = threadLock
 
 	def just_enter(self):
 		if self.exists is None:
@@ -151,6 +155,9 @@ class sqlobj(object):
 			self.connection = sqlite3.connect(self.file_name)
 
 	def enter(self):
+		if self.lock:
+			self.lock.acquire()
+
 		if self.exists is None:
 			self.just_enter()
 
@@ -168,6 +175,9 @@ class sqlobj(object):
 	def exit(self):
 		self.connection.close()
 		self.exists = None
+
+		if self.lock:
+			self.lock.release()
 		return self
 
 	def __exit__(self, exc_type, exc_val, exc_tb):
