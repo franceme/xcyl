@@ -1,5 +1,4 @@
-import os, sys, requests, json, pandas as pd
-import sqlite3
+import os, sys, requests, json, pandas as pd, sqlite3
 from openpyxl import load_workbook
 
 class xcylobj(object):
@@ -130,13 +129,13 @@ class sqlobj(object):
 	"""
 	Sample usage:
 	```
-	with SqliteConnect("dataset.sqlite") as sql:
+	with sqlobj("dataset.sqlite") as sql:
 		container = pd.read_sql(sql.table_name, sql.connection_string)
 	...
-	with SqliteConnect("dataset.sqlite", threadLock=<x>) as sql:
+	with sqlobj("dataset.sqlite", threadLock=<x>) as sql:
 		container = pd.read_sql(sql.table_name, sql.connection_string)
 	...
-	with SqliteConnect("dataset.sqlite") as sql:
+	with sqlobj("dataset.sqlite") as sql:
 		container.to_sql(sql.table_name, sql.connection, if_exists='replace')
 	```
 	"""
@@ -148,6 +147,7 @@ class sqlobj(object):
 		self.dataframes = {}
 		self.exists = None
 		self.lock = threadLock
+		self.connection = None
 
 	def just_enter(self):
 		if self.exists is None:
@@ -224,7 +224,7 @@ class sqlobj(object):
 
 		return output
 
-	def addr(self, sheet_name, dataframe):
+	def addr(self, sheet_name, dataframe, if_exists='replace'):
 		while sheet_name in list(self.keys()):
 			sheet_name += "_"
 
@@ -233,7 +233,7 @@ class sqlobj(object):
 			just_enter = True
 			self.just_enter()
 
-		dataframe.to_sql(sheet_name, self.connection, if_exists='replace')
+		dataframe.to_sql(sheet_name, self.connection, if_exists=if_exists)
 
 		if just_enter:
 			self.exit()
